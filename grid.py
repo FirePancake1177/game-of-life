@@ -56,9 +56,12 @@ class Grid:
     # функция для подсчета количества соседей
     def neighbours(self, x, y):
         total = 0
+
+        # перебираем всех соседей
         for i in range(-1, 2):
             for j in range(-1, 2):
 
+                # такая формула нужна, чтобы не выходить за границы поля
                 x_neighbour = (x + i + self.rows) % self.rows
                 y_neighbour = (y + j + self.columns) % self.columns
 
