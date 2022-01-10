@@ -1,32 +1,28 @@
 import pygame
 import grid
 
-# разрешение экрана
+# разрешение в пикселях
 WIDTH, HEIGHT = 1920, 1080
-
-screen_size = (WIDTH, HEIGHT)
-
-pygame.init()
-pygame.display.set_caption("Игра Жизнь")
-screen = pygame.display.set_mode(screen_size)
-clock = pygame.time.Clock()
-
 FPS = 30
 
-# масштабирование
-SCALE = 20
 
-Grid = grid.Grid(WIDTH, HEIGHT, SCALE)
+pygame.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
+clock = pygame.time.Clock()
+
+
+scaler = 20
+
+Grid = grid.Grid(WIDTH, HEIGHT, scaler)
+Grid.first_gen()
 
 pause = False
 run = True
-
-# цикл pygame
 while run:
     clock.tick(FPS)
     screen.fill("black")
 
-    # обработка событий
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
@@ -36,9 +32,8 @@ while run:
             if event.key == pygame.K_SPACE:
                 pause = not pause
 
-    Grid.draw(color_1="white", color_2="blue", surface=screen, pause=pause)
+    Grid.Conway(off_color="white", on_color="blue", surface=screen, pause=pause)
 
-    # обработка нажатия левой кнопки мыши
     if pygame.mouse.get_pressed()[0]:
         X, Y = pygame.mouse.get_pos()
         Grid.HandleMouse(X, Y)

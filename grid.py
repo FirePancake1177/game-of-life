@@ -7,60 +7,58 @@ class Grid:
     def __init__(self, width, height, scale):
         self.scale = scale
 
-        self.columns = height // scale
-        self.rows = width // scale
+        self.columns = int(height / scale)
+        self.rows = int(width / scale)
 
-        self.grid_array = np.ndarray(shape=(self.rows, self.columns))
+        self.size = (self.rows, self.columns)
+        self.grid = np.ndarray(shape=self.size)
 
-        # генерация случайного начального поля
-        for i in range(self.rows):
-            for j in range(self.columns):
-                self.grid_array[i][j] = random.randint(0, 1)
+    def first_gen(self):
+        for x in range(self.rows):
+            for y in range(self.columns):
+                self.grid[x][y] = random.randint(0, 1)
 
-    # отрисовка
-    def draw(self, color_1, color_2, surface, pause):
-        for i in range(self.rows):
-            for j in range(self.columns):
-                x = i * self.scale
-                y = j * self.scale
-                if self.grid_array[i][j] == 1:
-                    pygame.draw.rect(surface, color_2,
-                                     [x, y, self.scale - 1, self.scale - 1])
+    def Conway(self, off_color, on_color, surface, pause):
+        for x in range(self.rows):
+            for y in range(self.columns):
+                y_pos = y * self.scale
+                x_pos = x * self.scale
+                # random_color = (random.randint(10, 255), random.randint(10, 255), random.randint(10, 255))
+                if self.grid[x][y] == 1:
+                    pygame.draw.rect(surface, on_color,
+                                     [x_pos, y_pos, self.scale - 1, self.scale - 1])
                 else:
-                    pygame.draw.rect(surface, color_1,
-                                     [x, y, self.scale - 1, self.scale - 1])
+                    pygame.draw.rect(surface, off_color,
+                                     [x_pos, y_pos, self.scale - 1, self.scale - 1])
 
-        # генерация массива следующего "поколения"
-        new_arr = np.ndarray(shape=(self.rows, self.columns))
+        next = np.ndarray(shape=self.size)
         if not pause:
-            for i in range(self.rows):
-                for j in range(self.columns):
-                    state = self.grid_array[i][j]
-                    neighbours = self.neighbours(i, j)
+            for x in range(self.rows):
+                for y in range(self.columns):
+                    state = self.grid[x][y]
+                    neighbours = self.get_neighbours(x, y)
                     if state == 0 and neighbours == 3:
-                        new_arr[i][j] = 1
+                        next[x][y] = 1
                     elif state == 1 and (neighbours < 2 or neighbours > 3):
-                        new_arr[i][j] = 0
+                        next[x][y] = 0
                     else:
-                        new_arr[i][j] = state
-            self.grid_array = new_arr
+                        next[x][y] = state
+            self.grid = next
 
-    # на щелчок лкм "красить" клетку
     def HandleMouse(self, x, y):
-        x = x // self.scale
-        y = y // self.scale
+        _x = x // self.scale
+        _y = y // self.scale
 
-        if self.grid_array[x][y] is not None:
-            self.grid_array[x][y] = 1
+        if self.grid[_x][_y] is not None:
+            self.grid[_x][_y] = 1
 
-    # функция для подсчета количества соседей
-    def neighbours(self, x, y):
+    def get_neighbours(self, x, y):
         total = 0
-        for i in range(-1, 2):
-            for j in range(-1, 2):
-                x = (x + i + self.rows) % self.rows
-                y = (y + j + self.columns) % self.columns
-                total += self.grid_array[x][y]
+        for n in range(-1, 2):
+            for m in range(-1, 2):
+                x_edge = (x + n + self.rows) % self.rows
+                y_edge = (y + m + self.columns) % self.columns
+                total += self.grid[x_edge][y_edge]
 
-        total -= self.grid_array[x][y]
+        total -= self.grid[x][y]
         return total
